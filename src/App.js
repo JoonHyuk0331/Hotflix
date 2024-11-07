@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import './App.css';
 import HotflixLogo from './img/HotflixLogo.jpg'; // 이미지 경로를 import
+import Movie from './components/Movie';
+
 
 // 헤더 컴포넌트
 const Header = ({ isLoggedIn, username, onLogout }) => {
@@ -50,9 +52,10 @@ const Main = () => {
   useEffect(() => {
     const fetchMovies = async () => {
       try {
-        const response = await fetch(`https://api.themoviedb.org/3/movie/popular?api_key=8cc1274fb9b4939dd84d9741f37e166e`);
+        const response = await fetch(`https://api.themoviedb.org/3/movie/now_playing?language=ko&page=1&region=KR&api_key=8cc1274fb9b4939dd84d9741f37e166e`);
         const data = await response.json();
-        setMovies(data.results.slice(0, 4)); // 영화 목록 중 4개 항목만 가져오기
+        console.log(data);
+        setMovies(data.results); // 영화 목록 중 4개 항목만 가져오기 data.results.slice(0, 4)
       } catch (error) {
         console.error("Failed to fetch movies:", error);
       }
@@ -62,6 +65,7 @@ const Main = () => {
 
   return (
     <main>
+    
       <h1>Popular Movies</h1>
       <div className="movies-container">
         {movies.map((movie) => (
@@ -70,6 +74,16 @@ const Main = () => {
             <h2>{movie.title}</h2>
           </div>
         ))}
+      </div>
+      <h1>한국 상영중 영화</h1>
+      <div className="movies-container">
+        {
+          movies.map((movie)=>{
+            return(
+              <Movie key={movie.id} movie={movie} />
+            )
+          })
+        }
       </div>
     </main>
   );
