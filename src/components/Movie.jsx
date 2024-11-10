@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 
+
 // Movie 컴포넌트
 export default function Movie({ movie }) {
   return (
