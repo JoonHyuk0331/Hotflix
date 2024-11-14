@@ -6,6 +6,7 @@ import Main from './components/Main';
 import Popular from './components/Popular';
 import Search from './components/Search';
 import useGetTopRatedMovies from './hooks/useGetTopRatedMovies';
+import Wishlist from './components/Wishlist';
 
 
 // 헤더 컴포넌트
@@ -75,6 +76,7 @@ const App = () => {
         <Route path="/" element={ <Main /> } />
         <Route path="/popular" element={ <Popular /> } />
         <Route path="/search" element={ <Search /> } />
+        <Route path="/wishlist" element={ <Wishlist /> } />
 
 
       </Routes>
