@@ -5,6 +5,12 @@ import '../App.css';
 import { useInView } from "react-intersection-observer";
 import { ArrowUpDown } from 'lucide-react';
 import Movie from "./Movie";
+import { ArrowUp } from "lucide-react";
+
+// 맨 위로 스크롤
+const scrollToTop = () => {
+window.scrollTo({ top: 0, behavior: 'smooth' });
+};
 
 function Search() {
     const [selectedGenre, setSelectedGenre] = useState('select');
@@ -139,6 +145,12 @@ function Search() {
             <div ref={ref} className="loading-indicator">
                 {(hasNextTopRated || hasNextGenre) && <h1>Loading...</h1>}
             </div>
+            <button
+            className="scroll-to-top"
+            onClick={scrollToTop}
+            >
+                <ArrowUp />
+            </button>
         </div>
     );
 }

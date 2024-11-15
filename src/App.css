@@ -89,59 +89,121 @@ main {
 }
 
 /* Popular.jsx 관련 스타일 */
-.pagination-buttons {
-  display: flex;
-  justify-content: center;
-  margin-top: 20px;
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
 }
 
-.pagination-buttons button {
-  padding: 8px 16px;
-  margin: 0 10px;
+.view-mode-buttons {
+  padding-top: 40px;
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.view-mode-button {
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  border: none;
   cursor: pointer;
+  background-color: #e2e8f0;
+}
+
+.view-mode-button.active {
+  background-color: #3b82f6;
+  color: white;
 }
 
 .movies-grid {
-  background-color: chartreuse;
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
-  box-sizing: border-box;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 1.5rem;
+}
+
+/* Table View 스타일 수정 */
+.table-view-container {
+  height: calc(100vh - 200px); /* 버튼과 페이지네이션을 위한 공간 확보 */
+  display: flex;
+  flex-direction: column;
+  overflow: hidden; /* 스크롤 방지 */
+}
+
+.table-view {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  height: 100%;
+  overflow: hidden; /* 스크롤 방지 */
+}
+
+/* Infinite Scroll View 스타일 */
+.infinite-view {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 1.5rem;
+  height: auto; /* 자동 높이 설정 */
+  overflow: visible; /* 스크롤 허용 */
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 2rem;
+}
+
+.pagination button {
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  border: none;
+  background-color: #e2e8f0;
+  cursor: pointer;
+}
+
+.pagination button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.pagination span {
+  padding: 0.5rem 1rem;
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1rem 0;
+}
+
+.scroll-to-top {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  padding: 1rem;
+  border-radius: 50%;
+  background-color: #3b82f6;
+  color: white;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 @media (max-width: 768px) {
-  .movies-grid {
-    grid-template-columns: repeat(4, 1fr); /* 더 작아지면 2개의 컬럼 */
+  .movies-grid,
+  .table-view,
+  .infinite-view {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   }
 }
 
-
-.popular-container{
-  height: 100vh;
-  display: flex;
-  overflow-y: auto;
-  background-color: aqua;
-}
-
-.main-content{
-  height: 40px;
-}
-
-.movie-card img {
-  width: 100%; /* 이미지가 부모 요소 너비에 맞춤 */
-  height: 100%;
-  height: auto; /* 이미지 비율 유지 */
-  border-radius: 8px;
-}
-
-/* h4와 span의 반응형 스타일 */
-.movie-card h4 {
-  font-size: 1.2rem; /* 기본 글자 크기 */
-  margin: 10px 0 5px;
-}
-
-.movie-card span {
-  font-size: 1rem; /* 기본 글자 크기 */
+@media (max-width: 480px) {
+  .movies-grid,
+  .table-view,
+  .infinite-view {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* search css */

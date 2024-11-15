@@ -71,7 +71,7 @@ const App = () => {
   return (
     <div>
       <Header isLoggedIn={isLoggedIn} username={username} onLogout={handleLogout} />
-      {/* <div className='main-content'></div> */}
+      <div className='main-content'></div>
       <Routes>
         <Route path="/" element={ <Main /> } />
         <Route path="/popular" element={ <Popular /> } />
