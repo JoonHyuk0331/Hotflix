@@ -379,6 +379,50 @@ main {
   margin-top: 1rem;
 }
 
+
+/* Search.css 또는 App.css에 추가할 스타일 검색버튼 1115*/
+.search-container {
+    display: flex;
+    align-items: center;
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 8px 16px;
+    margin-bottom: 16px;
+    width: 100%;
+    max-width: 400px;
+}
+
+.search-icon {
+    color: #666;
+    margin-right: 8px;
+}
+
+.search-input {
+    border: none;
+    outline: none;
+    width: 100%;
+    font-size: 16px;
+    padding: 4px;
+}
+
+.search-input::placeholder {
+    color: #999;
+}
+
+/* 검색 중일 때 장르 선택 비활성화 스타일 */
+select:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* 검색 결과가 없을 때 메시지 스타일 */
+.no-results {
+    text-align: center;
+    padding: 2rem;
+    color: #666;
+}
+
 /* Wishlist jsx */
 .page-title {
   text-align: center;
@@ -398,4 +442,64 @@ main {
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   gap: 20px;
   padding: 20px;
+}
+
+/* 폼 컨테이너 스타일링 1115*/
+#genreForm {
+  max-width: 300px;
+
+  padding: 15px;
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* 라벨 스타일링 */
+label[for="genre"] {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #333333;
+}
+
+/* 셀렉트 박스 스타일링 */
+#genre {
+  width: 100%;
+  padding: 10px;
+  font-size: 14px;
+  border: 2px solid #e0e0e0;
+  border-radius: 6px;
+  background-color: #f8f9fa;
+  color: #495057;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.3s ease;
+}
+
+/* 셀렉트 박스 호버 효과 */
+#genre:hover:not(:disabled) {
+  border-color: #007bff;
+  background-color: #ffffff;
+}
+
+/* 셀렉트 박스 포커스 효과 */
+#genre:focus {
+  border-color: #0056b3;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+/* 비활성화 상태 스타일링 */
+#genre:disabled {
+  background-color: #e9ecef;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+/* 옵션 스타일링 */
+#genre option {
+  padding: 8px;
+  font-size: 14px;
+  background-color: #ffffff;
+  color: #495057;
 }

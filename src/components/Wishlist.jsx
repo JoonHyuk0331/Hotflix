@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useInView } from "react-intersection-observer";
 import '../App.css';
 import Movie from "./Movie";
+import { ArrowUp } from "lucide-react";
 
 function Wishlist() {
     const [viewedMovies, setViewedMovies] = useState([]);
