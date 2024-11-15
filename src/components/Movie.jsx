@@ -19,18 +19,33 @@ export default function Movie({ movie }) {
     }
   };
 
+  const formatDate = (dateStr) => {
+    if (!dateStr) return '미정';
+    return dateStr.split('-').slice(0, 2).join('.');
+  };
+
   return (
-    <div className="movies-container">
-      <div 
-        className="movie-card cursor-pointer hover:opacity-80 transition-opacity"
+    <div 
+        key={movie.id}
+        className="grid-item"
         onClick={handleMovieClick}
-      >
-        <img 
-          src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`} 
-          alt={movie.title}
-        />
-        <h4>{movie.title}</h4>
-        <span>평점: {movie.vote_average}</span>
+    >
+      <img 
+        src={`https://image.tmdb.org/t/p/w200${movie.poster_path}`} 
+        alt={movie.title}
+        className="poster"
+      />
+      <div className="movie-info">
+          <h3 className="movie-title">{movie.title}</h3>
+          <div className="movie-stats">
+              <span className="rating">
+                  ⭐ {movie.vote_average.toFixed(1)}
+                  <span className="vote-count">({movie.vote_count}명)</span>
+              </span>
+              <span className="release-date">
+                  {formatDate(movie.release_date)}
+              </span>
+          </div>
       </div>
     </div>
   );

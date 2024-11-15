@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useInView } from "react-intersection-observer";
 import '../App.css';
+import Movie from "./Movie";
 
 function Wishlist() {
     const [viewedMovies, setViewedMovies] = useState([]);
@@ -74,25 +75,7 @@ function Wishlist() {
                 <>
                     <div className="grid-container">
                         {displayedMovies.map((movie) => (
-                            <div key={movie.id} className="grid-item">
-                                <img
-                                    src={`https://image.tmdb.org/t/p/w200${movie.poster_path}`}
-                                    alt={movie.title}
-                                    className="poster"
-                                />
-                                <div className="movie-info">
-                                    <h3 className="movie-title">{movie.title}</h3>
-                                    <div className="movie-stats">
-                                        <span className="rating">
-                                            ⭐ {movie.vote_average.toFixed(1)}
-                                            <span className="vote-count">({movie.vote_count}명)</span>
-                                        </span>
-                                        <span className="release-date">
-                                            {formatDate(movie.release_date)}
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
+                            <Movie key={movie.id} movie={movie} />
                         ))}
                     </div>
                     <div ref={ref} className="loading-indicator">

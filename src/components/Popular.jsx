@@ -1,6 +1,6 @@
 // Popular.js
 import React, { useState, useEffect } from "react";
-import MovieSe from './MovieSe';
+import Movie from './Movie';
 import '../App.css';
 
 function Popular() {
@@ -52,7 +52,7 @@ function Popular() {
       <h2>인기 콘텐츠</h2>
       <div className="movies-grid">
         {movies.map((movie) => (
-          <MovieSe key={movie.id} movie={movie} />
+          <Movie key={movie.id} movie={movie} />
         ))}
       </div>
 
