@@ -5,6 +5,7 @@ import HotflixLogo from './img/HotflixLogo.jpg'; // 이미지 경로를 import
 import Main from './components/Main';
 import Popular from './components/Popular';
 import Search from './components/Search';
+import Login from './components/Login';
 import useGetTopRatedMovies from './hooks/useGetTopRatedMovies';
 import Wishlist from './components/Wishlist';
 
@@ -77,8 +78,7 @@ const App = () => {
         <Route path="/popular" element={ <Popular /> } />
         <Route path="/search" element={ <Search /> } />
         <Route path="/wishlist" element={ <Wishlist /> } />
-
-
+        <Route path="/login" element={<Login /> } />
       </Routes>
     </div>
   );
