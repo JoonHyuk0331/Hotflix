@@ -10,7 +10,8 @@ const Login = () => {
     firstName: '',
     lastName: '',
     email: '',
-    password: ''
+    password: '',
+    termsAgreed: false
   });
 
   const handleLoginSubmit = (e) => {
@@ -20,6 +21,10 @@ const Login = () => {
 
   const handleRegisterSubmit = (e) => {
     e.preventDefault();
+    if (!registerForm.termsAgreed) {
+      alert('약관에 동의해주세요.');
+      return;
+    }
     console.log('Register submitted:', registerForm);
   };
 
@@ -32,16 +37,16 @@ const Login = () => {
   };
 
   const handleRegisterChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value, type, checked } = e.target;
     setRegisterForm(prev => ({
       ...prev,
-      [name]: value
+      [name]: type === 'checkbox' ? checked : value
     }));
   };
 
   const styles = {
     wrapper: {
-      height: '430px',
+      height: '500px', // 높이 증가
       width: '320px',
       position: 'absolute',
       top: '50%',
@@ -69,14 +74,14 @@ const Login = () => {
       borderRadius: '10px',
       backfaceVisibility: 'hidden',
       border: '1px solid #40175815',
-      WebkitBackfaceVisibility: 'hidden', // Safari support
+      WebkitBackfaceVisibility: 'hidden',
     },
     loginCard: {
       transform: 'rotateY(0deg)',
     },
     registerCard: {
       transform: 'rotateY(180deg)',
-      height: '430px',
+      height: '500px', // 높이 증가
     },
     title: {
       marginBottom: '20px',
@@ -96,14 +101,24 @@ const Login = () => {
       color: '#fff',
       outline: 'none',
     },
-    forgotPassword: {
-      display: 'block',
-      marginLeft: '160px',
-      marginTop: '-15px',
-      fontSize: '10px',
-      fontWeight: 600,
-      color: '#060606',
-      textDecoration: 'none',
+    termsContainer: {
+      display: 'flex',
+      alignItems: 'center',
+      marginBottom: '10px',
+      padding: '0 10px',
+    },
+    checkbox: {
+      marginRight: '8px',
+    },
+    termsLabel: {
+      fontSize: '12px',
+      color: '#fff',
+      textAlign: 'left',
+    },
+    termsLink: {
+      color: '#dfeaf7',
+      textDecoration: 'underline',
+      cursor: 'pointer',
     },
     button: {
       padding: '10px 20px',
@@ -118,6 +133,7 @@ const Login = () => {
       letterSpacing: '1px',
       marginBottom: '10px',
       marginTop: '20px',
+      opacity: (props) => props.disabled ? 0.5 : 1,
     },
     toggleText: {
       fontSize: '12px',
@@ -169,10 +185,6 @@ const Login = () => {
                   style={styles.input}
                 />
               </div>
-              
-              <a href="#" style={styles.forgotPassword}>
-                Forgot Password?
-              </a>
               
               <button type="submit" style={styles.button}>
                 Login
@@ -237,8 +249,29 @@ const Login = () => {
                   style={styles.input}
                 />
               </div>
+
+              <div style={styles.termsContainer}>
+                <input
+                  type="checkbox"
+                  name="termsAgreed"
+                  checked={registerForm.termsAgreed}
+                  onChange={handleRegisterChange}
+                  style={styles.checkbox}
+                />
+                <label style={styles.termsLabel}>
+                  필수약관에 동의합니다.{' '}
+                </label>
+              </div>
               
-              <button type="submit" style={styles.button}>
+              <button 
+                type="submit" 
+                style={{
+                  ...styles.button,
+                  opacity: registerForm.termsAgreed ? 1 : 0.5,
+                  cursor: registerForm.termsAgreed ? 'pointer' : 'not-allowed'
+                }}
+                disabled={!registerForm.termsAgreed}
+              >
                 Register
               </button>
               
