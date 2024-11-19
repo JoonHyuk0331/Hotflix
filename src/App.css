@@ -328,6 +328,11 @@ main {
   aspect-ratio: 2/3;
 }
 
+.grid-item.highlighted {
+  border: 2px solid #ff6f61; /* 하이라이트된 카드의 테두리 색상 */
+  background-color: #ffe6e1; /* 하이라이트된 카드의 배경색 */
+}
+
 .grid-item:hover {
   transform: translateY(-8px);
   box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);

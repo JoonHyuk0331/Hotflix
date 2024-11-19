@@ -115,8 +115,8 @@ const Header = ({ isLoggedIn, username, onLogout }) => {
 
 // App 컴포넌트
 const App = () => {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [username, setUsername] = useState("");
+  const [isLoggedIn, setIsLoggedIn] = useState(false);//로그인jsx에서 로그인했을때 콜백함수로 로그인여부 알아냄
+  const [username, setUsername] = useState("");//로그인jsx에서 로그인했을때 콜백함수로 이름과 성 얻어냄
 
   // 컴포넌트 마운트 시 로그인 상태 확인
   useEffect(() => {
@@ -126,10 +126,13 @@ const App = () => {
       setIsLoggedIn(true);
       setUsername(`${user.firstName} ${user.lastName}`);
     }
+    else{//없으면 공란으로
+      localStorage.setItem('currentUser',"")
+    }
   }, []);
 
-  const handleLogout = () => {
-    localStorage.removeItem('currentUser');
+  const handleLogout = () => {//로그아웃하면 currentUser 공란으로
+    localStorage.setItem('currentUser',"");
     setIsLoggedIn(false);
     setUsername("");
   };
