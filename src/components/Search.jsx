@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import useGetTopRatedMovies from "../hooks/useGetTopRatedMovies";
 import useGetMoviesByGenre from "../hooks/useGetMoviesByGenre";
 import useSearchMovies from "../hooks/useSearchMovies";
 import '../App.css';
 import { useInView } from "react-intersection-observer";
-import { ArrowUpDown, Search as SearchIcon } from 'lucide-react';
+import { ArrowUpDown, Search as SearchIcon, History } from 'lucide-react';
 import Movie from "./Movie";
 import { ArrowUp } from "lucide-react";
 
@@ -13,24 +13,70 @@ const scrollToTop = () => {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 };
 
+// 현재 사용자의 이메일 가져오기
+const getCurrentUserEmail = () => {
+    try {
+        const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+        return currentUser?.email || '';
+    } catch (error) {
+        console.error("사용자 정보 로드 중 오류 발생:", error);
+        return '';
+    }
+};
+
+// 검색 기록 저장
+const saveSearchHistory = (email, searchQuery) => {
+    if (!email || !searchQuery) return;
+    
+    try {
+        const historyKey = `searchHistory_${email}`;
+        const existingHistory = JSON.parse(localStorage.getItem(historyKey) || '[]');
+        
+        // 중복 검색어 제거 및 최신 검색어를 앞에 추가
+        const updatedHistory = [
+            searchQuery,
+            ...existingHistory.filter(item => item !== searchQuery)
+        ].slice(0, 10); // 최대 10개까지만 저장
+        
+        localStorage.setItem(historyKey, JSON.stringify(updatedHistory));
+    } catch (error) {
+        console.error("검색 기록 저장 중 오류 발생:", error);
+    }
+};
+
+// 검색 기록 로드
+const loadSearchHistory = (email) => {
+    if (!email) return [];
+    
+    try {
+        const historyKey = `searchHistory_${email}`;
+        return JSON.parse(localStorage.getItem(historyKey) || '[]');
+    } catch (error) {
+        console.error("검색 기록 로드 중 오류 발생:", error);
+        return [];
+    }
+};
+
 function Search() {
     const [selectedGenre, setSelectedGenre] = useState('select');
+    const [searchInput, setSearchInput] = useState('');
     const [searchQuery, setSearchQuery] = useState('');
-    const [debouncedQuery, setDebouncedQuery] = useState('');
+    const [searchHistory, setSearchHistory] = useState([]);
+    const [showHistory, setShowHistory] = useState(false);
     const [sortConfig, setSortConfig] = useState({
         type: 'vote_average',
         order: 'desc'
     });
     const {ref, inView} = useInView();
+    const userEmail = getCurrentUserEmail();
 
-    // 검색어 디바운싱
+    // 컴포넌트 마운트 시 검색 기록 로드
     useEffect(() => {
-        const timer = setTimeout(() => {
-            setDebouncedQuery(searchQuery);
-        }, 500);
-
-        return () => clearTimeout(timer);
-    }, [searchQuery]);
+        if (userEmail) {
+            const history = loadSearchHistory(userEmail);
+            setSearchHistory(history);
+        }
+    }, [userEmail]);
 
     // Queries
     const {
@@ -52,11 +98,11 @@ function Search() {
         fetchNextPage: fetchNextSearch,
         hasNextPage: hasNextSearch,
         isFetchingNextPage: isFetchingNextSearch
-    } = useSearchMovies(debouncedQuery);
+    } = useSearchMovies(searchQuery);
 
     useEffect(() => {
         if (inView) {
-            if (debouncedQuery && hasNextSearch && !isFetchingNextSearch) {
+            if (searchQuery && hasNextSearch && !isFetchingNextSearch) {
                 fetchNextSearch();
             } else if (selectedGenre === 'select' && hasNextTopRated && !isFetchingNextTopRated) {
                 fetchNextTopRated();
@@ -64,16 +110,50 @@ function Search() {
                 fetchNextGenre();
             }
         }
-    }, [inView, selectedGenre, debouncedQuery]);
+    }, [inView, selectedGenre, searchQuery]);
 
     const handleGenreChange = (event) => {
         setSelectedGenre(event.target.value);
-        setSearchQuery(''); // 장르 선택시 검색어 초기화
+        setSearchInput('');
+        setSearchQuery('');
+        setShowHistory(false);
     };
 
-    const handleSearchChange = (event) => {
-        setSearchQuery(event.target.value);
-        setSelectedGenre('select'); // 검색시 장르 선택 초기화
+    const handleSearchInputChange = (event) => {
+        setSearchInput(event.target.value);
+        setShowHistory(true);
+    };
+
+    const handleSearch = (e) => {
+        e.preventDefault();
+        if (!searchInput.trim()) return;
+        
+        setSearchQuery(searchInput);
+        setSelectedGenre('select');
+        setShowHistory(false);
+        
+        // 검색 기록 저장
+        if (userEmail) {
+            saveSearchHistory(userEmail, searchInput.trim());
+            setSearchHistory(loadSearchHistory(userEmail));
+        }
+    };
+
+    // 검색 기록 클릭 처리
+    const handleHistoryClick = (query) => {
+        setSearchInput(query);
+        setSearchQuery(query);
+        setSelectedGenre('select');
+        setShowHistory(false);
+    };
+
+    // 검색 기록 삭제
+    const handleDeleteHistory = (queryToDelete) => {
+        if (userEmail) {
+            const updatedHistory = searchHistory.filter(query => query !== queryToDelete);
+            localStorage.setItem(`searchHistory_${userEmail}`, JSON.stringify(updatedHistory));
+            setSearchHistory(updatedHistory);
+        }
     };
 
     // 정렬 토글 핸들러
@@ -98,7 +178,7 @@ function Search() {
 
     // 현재 표시할 데이터 결정
     const getCurrentData = () => {
-        if (debouncedQuery) return searchData;
+        if (searchQuery) return searchData;
         if (selectedGenre === 'select') return topRatedData;
         return genreData;
     };
@@ -109,17 +189,48 @@ function Search() {
         <div>
             <div className="headbar"></div>
             <div className="controls-container">
-                {/* 검색창 추가 */}
-                <div className="search-container">
-                    <SearchIcon size={20} className="search-icon" />
-                    <input
-                        type="text"
-                        placeholder="영화 제목을 검색하세요..."
-                        value={searchQuery}
-                        onChange={handleSearchChange}
-                        className="search-input"
-                    />
-                </div>
+                <form onSubmit={handleSearch} className="search-container">
+                    <div className="search-input-container">
+                        {/* <SearchIcon size={20} className="search-icon" /> */}
+                        <input
+                            type="text"
+                            placeholder="영화 제목을 검색하세요..."
+                            value={searchInput}
+                            onChange={handleSearchInputChange}
+                            onFocus={() => setShowHistory(true)}
+                            className="search-input"
+                        />
+                        {/* 검색 기록 드롭다운 */}
+                        {showHistory && searchHistory.length > 0 && (
+                            <div className="search-history-dropdown">
+                                {searchHistory.map((query, index) => (
+                                    <div key={index} className="search-history-item">
+                                        <div 
+                                            className="history-query"
+                                            onClick={() => handleHistoryClick(query)}
+                                        >
+                                            <History size={14} />
+                                            <span>{query}</span>
+                                        </div>
+                                        <button
+                                            type="button"
+                                            className="delete-history"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                handleDeleteHistory(query);
+                                            }}
+                                        >
+                                            ×
+                                        </button>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                    <button type="submit" className="search-button">
+                        검색
+                    </button>
+                </form>
 
                 <form id="genreForm">
                     <label htmlFor="genre">장르</label>

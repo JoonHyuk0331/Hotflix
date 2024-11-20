@@ -57,22 +57,22 @@ const Main = () => {
 
     return (
       <main>
-        <h1>현재 상영중 영화</h1>
+        <h1 className="main-h1">현재 상영중 영화</h1>
         <div className="grid-container">
           {now_playing_movies.map(movie => <Movie key={movie.id} movie={movie} />)}
         </div>
 
-        <h1>인기있는 영화</h1>
+        <h1 className="main-h1">인기있는 영화</h1>
         <div className="grid-container">
           {popular_movies.map(movie => <Movie key={movie.id} movie={movie} />)}
         </div>
 
-        <h1>평점이 높은 영화</h1>
+        <h1 className="main-h1">평점이 높은 영화</h1>
         <div className="grid-container">
           {toprated_movies.map(movie => <Movie key={movie.id} movie={movie} />)}
         </div>
 
-        <h1>개봉 예정 영화</h1>
+        <h1 className="main-h1">개봉 예정 영화</h1>
         <div className="grid-container">
           {upcomming_movies.map(movie => <Movie key={movie.id} movie={movie} />)}
         </div>
