@@ -38,19 +38,26 @@ const Login = ({ onLoginSuccess }) => {  // onLoginSuccess prop 추가
     return passwordRegex.test(password);
   };
 
+  //컴포넌트 진입시
   useEffect(() => {
-    const currentUser = localStorage.getItem('currentUser');
-    if (currentUser) {
-      setIsLoggedIn(true);
-      onLoginSuccess(JSON.parse(currentUser));  // 여기도 추가
-      navigate(from, { replace: true });
+    const currentUser = localStorage.getItem('currentUser'); //로컬에서 현재 유저가 누군지 찾는다
+    if (currentUser) {//현재 유저가 있으면
+      setIsLoggedIn(true);//로그인 여부 true
+      onLoginSuccess(JSON.parse(currentUser));  // 부모 컴포넌트(App)에서 전달받은 onLoginSuccess 함수를 호출하여 부모에게도 사용자 정보를 전달.
+      navigate(from, { replace: true });//리다이렉트 관련 함수
+    }
+    else{//현재 유저가 없으면 currentUser는 공란으로
+      localStorage.setItem('currentUser',"");
     }
   }, [navigate, from, onLoginSuccess]);  // onLoginSuccess 의존성 추가
 
+  //로그인 버튼 눌렀을때
   const handleLoginSubmit = (e) => {
     e.preventDefault();
-    const users = JSON.parse(localStorage.getItem('users') || '[]');
+    const users = JSON.parse(localStorage.getItem('users') || '[]');//로컬스토리지에 유저정보담긴 users라는 배열을 가져온다
+    //없으면 [] 라는 빈 배열이라도 가져온다
     
+    //비밀번호, 아이디 검증하기 users 배열에서 입력한 아이디와 비밀번호와 일치하는거 있는지 찾는다
     const user = users.find(u => 
       u.email === loginForm.email && 
       u.password === loginForm.password

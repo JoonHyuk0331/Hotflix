@@ -7,6 +7,7 @@ const Main = () => {
     const [popular_movies, set_popular_Movies] = useState([]);
     const [toprated_movies, set_toprated_Movies] = useState([]);
     const [upcomming_movies, set_upcoming_Movies] = useState([]);
+    
     const [apiKey, setApiKey] = useState(""); // API 키 상태 추가
 
     // 로그인된 사용자의 비밀번호(API 키)를 가져오기
