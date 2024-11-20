@@ -36,9 +36,7 @@ const Popular = () => {
   const calculateMoviesPerPage = () => {
     const viewportHeight = window.innerHeight - 200; // 버튼과 페이지네이션 공간 제외
     const movieHeight = 400; // 예상되는 영화 카드의 높이
-    const columns = window.innerWidth >= 1200 ? 4 : 
-                   window.innerWidth >= 768 ? 3 : 
-                   window.innerWidth >= 480 ? 2 : 1;
+    const columns = 4
     const rows = Math.floor(viewportHeight / movieHeight);
     return rows * columns;
   };
@@ -98,6 +96,10 @@ const Popular = () => {
 
   // 페이지 변경시 데이터 가져오기
   useEffect(() => {
+    if (!apiKey) {
+      console.log("API 키가 설정되지 않았습니다. fetch 요청을 중단합니다.");
+      return;
+    }
     if (viewMode === 'table') {
       fetchMovies(currentPage, false);
     } else {
