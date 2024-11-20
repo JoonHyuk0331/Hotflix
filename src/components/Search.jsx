@@ -1,26 +1,84 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import useGetTopRatedMovies from "../hooks/useGetTopRatedMovies";
 import useGetMoviesByGenre from "../hooks/useGetMoviesByGenre";
+import useSearchMovies from "../hooks/useSearchMovies";
 import '../App.css';
 import { useInView } from "react-intersection-observer";
-import { ArrowUpDown } from 'lucide-react';
+import { ArrowUpDown, Search as SearchIcon, History } from 'lucide-react';
 import Movie from "./Movie";
 import { ArrowUp } from "lucide-react";
 
 // 맨 위로 스크롤
 const scrollToTop = () => {
-window.scrollTo({ top: 0, behavior: 'smooth' });
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+};
+
+// 현재 사용자의 이메일 가져오기
+const getCurrentUserEmail = () => {
+    try {
+        const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+        return currentUser?.email || '';
+    } catch (error) {
+        console.error("사용자 정보 로드 중 오류 발생:", error);
+        return '';
+    }
+};
+
+// 검색 기록 저장
+const saveSearchHistory = (email, searchQuery) => {
+    if (!email || !searchQuery) return;
+    
+    try {
+        const historyKey = `searchHistory_${email}`;
+        const existingHistory = JSON.parse(localStorage.getItem(historyKey) || '[]');
+        
+        // 중복 검색어 제거 및 최신 검색어를 앞에 추가
+        const updatedHistory = [
+            searchQuery,
+            ...existingHistory.filter(item => item !== searchQuery)
+        ].slice(0, 10); // 최대 10개까지만 저장
+        
+        localStorage.setItem(historyKey, JSON.stringify(updatedHistory));
+    } catch (error) {
+        console.error("검색 기록 저장 중 오류 발생:", error);
+    }
+};
+
+// 검색 기록 로드
+const loadSearchHistory = (email) => {
+    if (!email) return [];
+    
+    try {
+        const historyKey = `searchHistory_${email}`;
+        return JSON.parse(localStorage.getItem(historyKey) || '[]');
+    } catch (error) {
+        console.error("검색 기록 로드 중 오류 발생:", error);
+        return [];
+    }
 };
 
 function Search() {
     const [selectedGenre, setSelectedGenre] = useState('select');
+    const [searchInput, setSearchInput] = useState('');
+    const [searchQuery, setSearchQuery] = useState('');
+    const [searchHistory, setSearchHistory] = useState([]);
+    const [showHistory, setShowHistory] = useState(false);
     const [sortConfig, setSortConfig] = useState({
-        type: 'vote_average',  // 'vote_average' or 'primary_release_date'
-        order: 'desc'         // 'desc' or 'asc'
+        type: 'vote_average',
+        order: 'desc'
     });
     const {ref, inView} = useInView();
+    const userEmail = getCurrentUserEmail();
 
-    // Top Rated Movies Query
+    // 컴포넌트 마운트 시 검색 기록 로드
+    useEffect(() => {
+        if (userEmail) {
+            const history = loadSearchHistory(userEmail);
+            setSearchHistory(history);
+        }
+    }, [userEmail]);
+
+    // Queries
     const {
         data: topRatedData,
         fetchNextPage: fetchNextTopRated,
@@ -28,7 +86,6 @@ function Search() {
         isFetchingNextPage: isFetchingNextTopRated
     } = useGetTopRatedMovies();
 
-    // Movies by Genre Query with Sort
     const {
         data: genreData,
         fetchNextPage: fetchNextGenre,
@@ -36,37 +93,75 @@ function Search() {
         isFetchingNextPage: isFetchingNextGenre
     } = useGetMoviesByGenre(selectedGenre, `${sortConfig.type}.${sortConfig.order}`);
 
+    const {
+        data: searchData,
+        fetchNextPage: fetchNextSearch,
+        hasNextPage: hasNextSearch,
+        isFetchingNextPage: isFetchingNextSearch
+    } = useSearchMovies(searchQuery);
+
     useEffect(() => {
         if (inView) {
-            if (selectedGenre === 'select' && hasNextTopRated && !isFetchingNextTopRated) {
+            if (searchQuery && hasNextSearch && !isFetchingNextSearch) {
+                fetchNextSearch();
+            } else if (selectedGenre === 'select' && hasNextTopRated && !isFetchingNextTopRated) {
                 fetchNextTopRated();
             } else if (selectedGenre !== 'select' && hasNextGenre && !isFetchingNextGenre) {
                 fetchNextGenre();
             }
         }
-    }, [inView, selectedGenre]);
+    }, [inView, selectedGenre, searchQuery]);
 
     const handleGenreChange = (event) => {
         setSelectedGenre(event.target.value);
+        setSearchInput('');
+        setSearchQuery('');
+        setShowHistory(false);
+    };
+
+    const handleSearchInputChange = (event) => {
+        setSearchInput(event.target.value);
+        setShowHistory(true);
+    };
+
+    const handleSearch = (e) => {
+        e.preventDefault();
+        if (!searchInput.trim()) return;
+        
+        setSearchQuery(searchInput);
+        setSelectedGenre('select');
+        setShowHistory(false);
+        
+        // 검색 기록 저장
+        if (userEmail) {
+            saveSearchHistory(userEmail, searchInput.trim());
+            setSearchHistory(loadSearchHistory(userEmail));
+        }
+    };
+
+    // 검색 기록 클릭 처리
+    const handleHistoryClick = (query) => {
+        setSearchInput(query);
+        setSearchQuery(query);
+        setSelectedGenre('select');
+        setShowHistory(false);
+    };
+
+    // 검색 기록 삭제
+    const handleDeleteHistory = (queryToDelete) => {
+        if (userEmail) {
+            const updatedHistory = searchHistory.filter(query => query !== queryToDelete);
+            localStorage.setItem(`searchHistory_${userEmail}`, JSON.stringify(updatedHistory));
+            setSearchHistory(updatedHistory);
+        }
     };
 
     // 정렬 토글 핸들러
     const handleSortToggle = (type) => {
-        setSortConfig(prev => {
-            if (prev.type === type) {
-                // 같은 버튼을 눌렀을 때는 오름차순/내림차순 토글
-                return {
-                    type: type,
-                    order: prev.order === 'desc' ? 'asc' : 'desc'
-                };
-            } else {
-                // 다른 버튼을 눌렀을 때는 해당 타입으로 변경하고 내림차순으로 시작
-                return {
-                    type: type,
-                    order: 'desc'
-                };
-            }
-        });
+        setSortConfig(prev => ({
+            type: type,
+            order: prev.type === type ? (prev.order === 'desc' ? 'asc' : 'desc') : 'desc'
+        }));
     };
 
     // 정렬 상태 표시 텍스트
@@ -81,18 +176,62 @@ function Search() {
         }
     };
 
-    const currentData = selectedGenre === 'select' ? topRatedData : genreData;
-
-    // 날짜 포맷팅 함수
-    const formatDate = (dateStr) => {
-        if (!dateStr) return '미정';
-        return dateStr.split('-').slice(0, 2).join('.');
+    // 현재 표시할 데이터 결정
+    const getCurrentData = () => {
+        if (searchQuery) return searchData;
+        if (selectedGenre === 'select') return topRatedData;
+        return genreData;
     };
+
+    const currentData = getCurrentData();
 
     return (
         <div>
             <div className="headbar"></div>
             <div className="controls-container">
+                <form onSubmit={handleSearch} className="search-container">
+                    <div className="search-input-container">
+                        {/* <SearchIcon size={20} className="search-icon" /> */}
+                        <input
+                            type="text"
+                            placeholder="영화 제목을 검색하세요..."
+                            value={searchInput}
+                            onChange={handleSearchInputChange}
+                            onFocus={() => setShowHistory(true)}
+                            className="search-input"
+                        />
+                        {/* 검색 기록 드롭다운 */}
+                        {showHistory && searchHistory.length > 0 && (
+                            <div className="search-history-dropdown">
+                                {searchHistory.map((query, index) => (
+                                    <div key={index} className="search-history-item">
+                                        <div 
+                                            className="history-query"
+                                            onClick={() => handleHistoryClick(query)}
+                                        >
+                                            <History size={14} />
+                                            <span>{query}</span>
+                                        </div>
+                                        <button
+                                            type="button"
+                                            className="delete-history"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                handleDeleteHistory(query);
+                                            }}
+                                        >
+                                            ×
+                                        </button>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                    <button type="submit" className="search-button">
+                        검색
+                    </button>
+                </form>
+
                 <form id="genreForm">
                     <label htmlFor="genre">장르</label>
                     <select 
@@ -100,6 +239,7 @@ function Search() {
                         id="genre" 
                         value={selectedGenre}
                         onChange={handleGenreChange}
+                        disabled={!!searchQuery}
                     >
                         <option value="select">영화 장르 선택</option>
                         <option value="28">액션</option>
@@ -110,7 +250,7 @@ function Search() {
                     </select>
                 </form>
                 
-                {selectedGenre !== 'select' && (
+                {selectedGenre !== 'select' && !searchQuery && (
                     <div className="sort-controls">
                         <button 
                             onClick={() => handleSortToggle('vote_average')}
@@ -135,6 +275,7 @@ function Search() {
                     </div>
                 )}
             </div>
+
             <div className="grid-container">
                 {currentData?.pages.map((page) =>
                     page.results.map((movie) => (
@@ -142,12 +283,16 @@ function Search() {
                     ))
                 )}
             </div>
+
             <div ref={ref} className="loading-indicator">
-                {(hasNextTopRated || hasNextGenre) && <h1>Loading...</h1>}
+                {(hasNextSearch || hasNextTopRated || hasNextGenre) && 
+                    <h1>Loading...</h1>
+                }
             </div>
+
             <button
-            className="scroll-to-top"
-            onClick={scrollToTop}
+                className="scroll-to-top"
+                onClick={scrollToTop}
             >
                 <ArrowUp />
             </button>

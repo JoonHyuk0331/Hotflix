@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useInView } from "react-intersection-observer";
 import '../App.css';
 import Movie from "./Movie";
+import { ArrowUp } from "lucide-react";
 
 function Wishlist() {
     const [viewedMovies, setViewedMovies] = useState([]);
@@ -12,9 +13,27 @@ function Wishlist() {
 
     // 초기 로드 시 로컬 스토리지에서 영화 ID 목록을 가져옴
     useEffect(() => {
-        const savedMovies = JSON.parse(localStorage.getItem('viewedMovies') || '[]');
-        setViewedMovies(savedMovies);
-    }, []);
+        try {
+          // 현재 로그인된 사용자 정보 가져오기
+          const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+          const userEmail = currentUser?.email || "";
+      
+          if (!userEmail) {
+            console.warn("로그인된 사용자가 없습니다.");
+            setViewedMovies([]); // 빈 리스트 설정
+            return;
+          }
+      
+          // 사용자별 영화 리스트 로드
+          const userMoviesKey = `viewedMovies_${userEmail}`;
+          const savedMovies = JSON.parse(localStorage.getItem(userMoviesKey) || '[]');
+          setViewedMovies(savedMovies);
+        } catch (error) {
+          console.error("로컬 스토리지 로드 중 오류 발생:", error);
+          setViewedMovies([]); // 오류 발생 시 빈 리스트 설정
+        }
+      }, []);
+      
 
     // API를 통해 영화 상세 정보를 가져오는 함수
     const fetchMovieDetails = async (movieId) => {
