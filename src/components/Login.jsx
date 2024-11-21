@@ -194,7 +194,7 @@ const Login = ({ onLoginSuccess }) => {  // onLoginSuccess prop 추가
   const styles = {
     wrapper: {
       height: '500px',
-      width: '320px',
+      width: '330px',
       position: 'absolute',
       top: '50%',
       left: '50%',
@@ -214,7 +214,7 @@ const Login = ({ onLoginSuccess }) => {  // onLoginSuccess prop 추가
       position: 'absolute',
       width: '100%',
       height: '340px',
-      padding: '40px 20px',
+      padding: '20px 10px',
       textAlign: 'center',
       background: 'rgba(212, 0, 255, 0.26)',
       color: '#fff',
@@ -248,6 +248,7 @@ const Login = ({ onLoginSuccess }) => {  // onLoginSuccess prop 추가
       width: '100%',
       padding: '12px',
       borderRadius: '5px',
+      boxSizing: 'border-box',
       border: '1px solid rgba(255, 255, 255, 0.2)',
       background: 'rgba(255, 255, 255, 0.1)',
       color: '#fff',
