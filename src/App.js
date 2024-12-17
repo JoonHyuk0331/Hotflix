@@ -6,6 +6,7 @@ import Main from './components/Main';
 import Popular from './components/Popular';
 import Search from './components/Search';
 import Login from './components/Login';
+import Redirect from './components/Redirect';
 import useGetTopRatedMovies from './hooks/useGetTopRatedMovies';
 import Wishlist from './components/Wishlist';
 import { useRef } from 'react';
@@ -156,6 +157,7 @@ const App = () => {
       <div className='main-content'></div>
       <Routes>
         <Route path="/" element={<Main />} />
+        <Route path="/oauth" element={<Redirect />} />
         <Route path="/login" element={
           <Login onLoginSuccess={handleLoginSuccess} />
         } />

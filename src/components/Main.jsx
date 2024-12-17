@@ -1,13 +1,17 @@
 import React, { useState, useEffect } from "react";
 import Movie from './Movie';
+import axios from 'axios'
+
+
+
 
 // 메인 화면 컴포넌트
 const Main = () => {
+
     const [now_playing_movies, set_now_playing_Movies] = useState([]);
     const [popular_movies, set_popular_Movies] = useState([]);
     const [toprated_movies, set_toprated_Movies] = useState([]);
     const [upcomming_movies, set_upcoming_Movies] = useState([]);
-    
     const [apiKey, setApiKey] = useState(""); // API 키 상태 추가
 
     // 로그인된 사용자의 비밀번호(API 키)를 가져오기

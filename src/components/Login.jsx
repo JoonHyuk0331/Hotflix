@@ -1,10 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
+
 const Login = ({ onLoginSuccess }) => {  // onLoginSuccess prop 추가
+  
   const navigate = useNavigate();
   const location = useLocation();
   const from = location.state?.from?.pathname || "/";
+  const KAKAO_AUTH_URL = `https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=${process.env.REACT_APP_REST_API_KEY}&redirect_uri=${process.env.REACT_APP_REDIRECT_URI}`
+
 
   const [isFlipped, setIsFlipped] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -37,6 +41,8 @@ const Login = ({ onLoginSuccess }) => {  // onLoginSuccess prop 추가
     const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
     return passwordRegex.test(password);
   };
+
+  
 
   //컴포넌트 진입시
   useEffect(() => {
@@ -71,6 +77,10 @@ const Login = ({ onLoginSuccess }) => {  // onLoginSuccess prop 추가
     } else {
       alert('이메일 또는 비밀번호가 일치하지 않습니다.');
     }
+  };
+
+  const KakaologinHandler = () => {
+    window.location.href = KAKAO_AUTH_URL;
   };
 
   const handleRegisterSubmit = (e) => {
@@ -462,6 +472,9 @@ const Login = ({ onLoginSuccess }) => {  // onLoginSuccess prop 추가
               
               <button type="submit" style={styles.button}>
                 Login
+              </button>
+              <button type='button' onClick={KakaologinHandler}>
+                로그인 하기
               </button>
               
               <p style={styles.toggleText}>
