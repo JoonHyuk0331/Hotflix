@@ -534,9 +534,24 @@ const Login = ({ onLoginSuccess }) => {  // onLoginSuccess prop 추가
               <button type="submit" style={styles.button}>
                 Login
               </button>
-              <button type='button' onClick={KakaologinHandler}>
-                로그인 하기
+              <button 
+                type="button" 
+                onClick={KakaologinHandler} 
+                style={{
+                  backgroundColor: '#FEE500', 
+                  color: '#000000', 
+                  border: 'none', 
+                  borderRadius: '5px', 
+                  padding: '10px 20px', 
+                  fontSize: '16px', 
+                  cursor: 'pointer', 
+                  fontWeight: 'bold',
+                  boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+                }}
+              >
+                카카오 로그인 하기
               </button>
+
               
               <p style={styles.toggleText}>
                 Don't have an account?{' '}
