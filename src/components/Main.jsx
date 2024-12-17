@@ -23,7 +23,7 @@ const Main = () => {
         // currentUser의 email과 동일한 email을 가진 객체 찾기
         const matchedUser = users.find(user => user.email === currentUser.email);
         if (matchedUser) {
-          setApiKey(matchedUser.password); // API 키로 사용
+          setApiKey(process.env.REACT_APP_TMDB_API_KEY); // API 키로 사용
           console.log("API 키를 설정했습니다:", matchedUser.password);
         } else {
           console.log("일치하는 사용자가 없습니다.");

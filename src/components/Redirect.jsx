@@ -34,6 +34,7 @@ const Redirection = () => {
                       Authorization: `Bearer ${token}`,
                     },
                 })
+                localStorage.setItem('accessToken',token);
                 console.log("회원정보:"+kakaoUser.data)
                 console.log(kakaoUser.data.kakao_account.profile.nickname)
 
