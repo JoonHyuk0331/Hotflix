@@ -6,18 +6,17 @@ import Main from './components/Main';
 import Popular from './components/Popular';
 import Search from './components/Search';
 import Login from './components/Login';
-import Redirect from './components/Redirect';
 import useGetTopRatedMovies from './hooks/useGetTopRatedMovies';
 import Wishlist from './components/Wishlist';
 import { useRef } from 'react';
+import axios from 'axios';
 
-// ProtectedRoute 컴포넌트
+// 보호된 라우트 컴포넌트
 const ProtectedRoute = ({ children }) => {
   const isAuthenticated = localStorage.getItem('currentUser');
   const location = useLocation();
 
   if (!isAuthenticated) {
-    // 현재 시도하려던 경로를 state로 전달
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
@@ -114,10 +113,86 @@ const Header = ({ isLoggedIn, username, onLogout }) => {
   );
 };
 
+// 카카오 리디렉션 컴포넌트
+const KakaoRedirect = ({ onLoginSuccess }) => {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchKakaoToken = async () => {
+      try {
+        const code = new URL(window.location.href).searchParams.get("code");
+        if (!code) {
+          throw new Error('인증 코드가 없습니다.');
+        }
+
+        const grant_type = 'authorization_code';
+        const client_id = process.env.REACT_APP_REST_API_KEY;
+
+        // 카카오 토큰 요청
+        const tokenResponse = await axios.post(
+          `https://kauth.kakao.com/oauth/token?grant_type=${grant_type}&client_id=${client_id}&redirect_uri=${process.env.REACT_APP_REDIRECT_URI}&code=${code}`,
+          {},
+          {
+            headers: {
+              'Content-type': 'application/x-www-form-urlencoded;charset=utf-8',
+            },
+          }
+        );
+
+        const accessToken = tokenResponse.data.access_token;
+
+        // 사용자 정보 요청
+        const userInfoResponse = await axios.get('https://kapi.kakao.com/v2/user/me', {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        });
+
+        const kakaoAccount = userInfoResponse.data.kakao_account;
+        const profile = kakaoAccount.profile;
+
+        // 카카오 사용자 정보로 로컬 사용자 생성 또는 로그인
+        const users = JSON.parse(localStorage.getItem('users') || '[]');
+        let user = users.find(u => u.email === kakaoAccount.email);
+
+        if (!user) {
+          // 새 사용자 생성
+          user = {
+            firstName: profile.nickname.split(' ')[0] || '',
+            lastName: profile.nickname.split(' ')[1] || '',
+            email: kakaoAccount.email,
+            password: '', // 소셜 로그인은 비밀번호 없음
+            provider: 'kakao'
+          };
+
+          users.push(user);
+          localStorage.setItem('users', JSON.stringify(users));
+        }
+
+        // 로컬 스토리지에 사용자 저장
+        localStorage.setItem('currentUser', JSON.stringify(user));
+        
+        // 로그인 성공 처리
+        onLoginSuccess(user);
+        navigate('/', { replace: true });
+
+      } catch (error) {
+        console.error('카카오 로그인 오류:', error);
+        alert('로그인 중 오류가 발생했습니다.');
+        navigate('/login');
+      }
+    };
+
+    fetchKakaoToken();
+  }, [navigate, onLoginSuccess]);
+
+  return <div>로그인 중입니다...</div>;
+};
+
 // App 컴포넌트
 const App = () => {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);//로그인jsx에서 로그인했을때 콜백함수로 로그인여부 알아냄
-  const [username, setUsername] = useState("");//로그인jsx에서 로그인했을때 콜백함수로 이름과 성 얻어냄
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [username, setUsername] = useState("");
 
   // 컴포넌트 마운트 시 로그인 상태 확인
   useEffect(() => {
@@ -127,17 +202,19 @@ const App = () => {
       setIsLoggedIn(true);
       setUsername(`${user.firstName} ${user.lastName}`);
     }
-    else{//없으면 공란으로
-      localStorage.setItem('currentUser',"")
+    else {
+      localStorage.setItem('currentUser', "")
     }
   }, []);
 
-  const handleLogout = () => {//로그아웃하면 currentUser 공란으로
-    localStorage.setItem('currentUser',"");
+  // 로그아웃 핸들러
+  const handleLogout = () => {
+    localStorage.setItem('currentUser', "");
     setIsLoggedIn(false);
     setUsername("");
   };
 
+  // 로그인 성공 핸들러
   const handleLoginSuccess = (user) => {
     setIsLoggedIn(true);
     setUsername(`${user.firstName} ${user.lastName}`);
@@ -157,7 +234,7 @@ const App = () => {
       <div className='main-content'></div>
       <Routes>
         <Route path="/" element={<Main />} />
-        <Route path="/oauth" element={<Redirect />} />
+        <Route path="/oauth" element={<KakaoRedirect onLoginSuccess={handleLoginSuccess} />} />
         <Route path="/login" element={
           <Login onLoginSuccess={handleLoginSuccess} />
         } />

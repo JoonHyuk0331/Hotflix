@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import axios from 'axios';
 
 
 const Login = ({ onLoginSuccess }) => {  // onLoginSuccess prop 추가
@@ -76,6 +77,66 @@ const Login = ({ onLoginSuccess }) => {  // onLoginSuccess prop 추가
       navigate(from, { replace: true });
     } else {
       alert('이메일 또는 비밀번호가 일치하지 않습니다.');
+    }
+  };
+
+  // 카카오 로그인 성공 처리
+  const handleKakaoLoginSuccess = async (code) => {
+    try {
+      const grant_type = '인증_코드';
+      const client_id = process.env.REACT_APP_REST_API_KEY;
+
+      // 카카오 토큰 요청
+      const tokenResponse = await axios.post(
+        `https://kauth.kakao.com/oauth/token?grant_type=${grant_type}&client_id=${client_id}&redirect_uri=${process.env.REACT_APP_REDIRECT_URI}&code=${code}`,
+        {},
+        {
+          headers: {
+            'Content-type': 'application/x-www-form-urlencoded;charset=utf-8',
+          },
+        }
+      );
+
+      const accessToken = tokenResponse.data.access_token;
+
+      // 사용자 정보 요청
+      const userInfoResponse = await axios.get('https://kapi.kakao.com/v2/user/me', {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+
+      const kakaoAccount = userInfoResponse.data.kakao_account;
+      const profile = kakaoAccount.profile;
+
+      // 카카오 사용자 정보로 로컬 사용자 생성 또는 로그인
+      const users = JSON.parse(localStorage.getItem('users') || '[]');
+      let user = users.find(u => u.email === kakaoAccount.email);
+
+      if (!user) {
+        // 새 사용자 생성
+        user = {
+          firstName: profile.nickname.split(' ')[0] || '',
+          lastName: profile.nickname.split(' ')[1] || '',
+          email: kakaoAccount.email,
+          password: '', // 소셜 로그인은 비밀번호 없음
+          provider: 'kakao'
+        };
+
+        users.push(user);
+        localStorage.setItem('users', JSON.stringify(users));
+      }
+
+      // 로컬 스토리지에 사용자 저장
+      localStorage.setItem('currentUser', JSON.stringify(user));
+      
+      // 로그인 성공 처리
+      onLoginSuccess(user);
+      navigate(from, { replace: true });
+
+    } catch (error) {
+      console.error('카카오 로그인 오류:', error);
+      alert('로그인 중 오류가 발생했습니다.');
     }
   };
 
