@@ -2,12 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { Link, Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import './App.css';
 import HotflixLogo from './img/HotflixLogo.jpg';
-import Main from './components/Main';
-import Popular from './components/Popular';
-import Search from './components/Search';
-import Login from './components/Login';
-import useGetTopRatedMovies from './hooks/useGetTopRatedMovies';
-import Wishlist from './components/Wishlist';
+import Main from './components/Main.jsx';
+import Popular from './components/Popular.jsx';
+import Search from './components/Search.jsx';
+import Login from './components/Login.jsx';
+import useGetTopRatedMovies from './hooks/useGetTopRatedMovies.jsx';
+import Wishlist from './components/Wishlist.jsx';
 import { useRef } from 'react';
 import axios from 'axios';
 

@@ -39,7 +39,7 @@ const Redirection = () => {
                 console.log(kakaoUser.data.kakao_account.profile.nickname)
 
                 // 다 끝났으면 메인 페이지로 복귀
-                navigate('/');
+                 navigate('/');
             } catch (error) {
                 console.error("토큰 요청 오류:", error);
             }
